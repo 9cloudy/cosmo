@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "prettier": "^3.2.5",
+    "prisma": "^5.19.1",
     "turbo": "^2.1.1",
     "typescript": "^5.4.5"
   },
@@ -19,5 +20,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@prisma/client": "^5.19.1",
+    "dotenv": "^16.4.5",
+    "next-auth": "^4.24.7"
+  }
 }
