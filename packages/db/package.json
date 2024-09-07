@@ -1,0 +1,13 @@
+{
+  "name": "@repo/db",
+  "type": "module",
+  "exports": {
+    "./prisma-client" :"./src/db.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
