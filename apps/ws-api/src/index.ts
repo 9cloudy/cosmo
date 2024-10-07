@@ -1,46 +1,64 @@
-import http from "http"
-import { WebSocketServer } from "ws"
+import http from "http";
+import  { WebSocket , WebSocketServer } from "ws";
 
 const server = http.createServer((req, res) => {
-    res.setHeader("content-type", "application/json")
-    res.writeHead(200)
+    res.setHeader("content-type", "application/json");
+    res.writeHead(200);
+    res.end(JSON.stringify({ message: "HTTP server is running" }));
 }).listen(8080, () => {
-    console.log("server running on port 8000");
+    console.log("Server running on port 8080");
 });
 
-const wss = new WebSocketServer({ noServer: true })
+const wss = new WebSocketServer({ noServer: true });
 
 server.on("upgrade", (req, socket, head) => {
     socket.on("error", (err: Error) => {
-        console.error(err)
-    })
-    //auth here
-    if (!!req.headers.authorization && req.headers.authstatus !== "authurised") {
-        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-        socket.destroy();  
-        return;
-    }
+        console.error(err);
+    });
+   
+    console.log( req.url);
+
+    // if (!!req.url?.includes("authorization") && req.url.includes("isAuthenticated") !== false) {
+    //     const url = new URL(req.url!)
+    // console.log( url);
+    //     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+    //     socket.destroy();
+    //     return;
+    // }
 
     wss.handleUpgrade(req, socket, head, (ws) => {
         ws.on("error", (err: Error) => {
-            console.error(err)
-        })
-        ws.emit("connection", ws, req)
-    })
-})
+            console.error(err);
+        });
+       
+        wss.emit("connection", ws, req);
+    });
+});
 
 wss.on("connection", (ws, req) => {
+    
+    
+    console.log("Client connected");
+    
+    ws.on("message", (data, isBinary) => {
+        const url = new URL(req.url!)
+    console.log( url);
+        console.log("Data received:", data.toString());
+        
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(data, { binary: isBinary });
+            }
+        });
+    });
 
     ws.on("error", (err) => {
-        console.error(err)
-    })
-    ws.on("message", (data, isBinary) => {
-        console.log("data recived", data)
-        wss.clients.forEach((client) => {
-            if (client.readyState === ws.OPEN && !isBinary) {
-                ws.send(data)
-            }
-        })
-    })
-    ws.send("welcome")
-})
+        console.error("WebSocket error:", err);
+    });
+
+    ws.on("close", () => {
+        console.log("Client disconnected");
+    });
+
+    ws.send("Welcome to the WebSocket server!");
+});
