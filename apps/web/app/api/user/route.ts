@@ -1,7 +1,8 @@
-import prisma from "@repo/db/prisma-client";
+import prisma, { Providers } from "@repo/db/prisma-client";
 import { NextRequest, NextResponse } from "next/server"
 import * as bcrypt from "bcrypt"
 import * as z from "zod"
+import { generateId } from "~/utils/generator";
 const userSchema = z.object({
     username:z.string().min(1,"username required").max(100),
     email:z.string().min(1,"email required").email("enter a valid email"),
@@ -17,12 +18,15 @@ export async function POST(req:NextRequest){
     });
     if(!existingUser){
         const hashedPassword = await bcrypt.hash(password,10)
+        const publicID = generateId();
         try{
             const user = await prisma.users.create({
                 data:{
                   name:username,
                   email:email,
-                  password:hashedPassword
+                  password:hashedPassword,
+                  provider:Providers.CREDENTAILS,
+                  publicId:publicID
                 },
                 select:{ 
                     email:true, 
@@ -34,7 +38,7 @@ export async function POST(req:NextRequest){
             
             const res = NextResponse.json({msg:"account created successfully"})
             return res;
-
+            
         }catch(err){
           return NextResponse.json({err})
         }
