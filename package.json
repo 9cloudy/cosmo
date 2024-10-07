@@ -22,8 +22,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "@prisma/client": "^5.19.1",
     "dotenv": "^16.4.5",
-    "next-auth": "^4.24.7"
+    "next-auth": "^4.24.8"
   }
 }
