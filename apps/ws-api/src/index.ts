@@ -18,13 +18,14 @@ server.on("upgrade", (req, socket, head) => {
    
     console.log( req.url);
 
-    // if (!!req.url?.includes("authorization") && req.url.includes("isAuthenticated") !== false) {
-    //     const url = new URL(req.url!)
-    // console.log( url);
-    //     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-    //     socket.destroy();
-    //     return;
-    // }
+    if (!!req.url?.includes("authorization") && req.url.includes("isAuthenticated") !== false) {
+        const url = new URL(req.url!)
+        
+    console.log( url);
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+        return;
+    }
 
     wss.handleUpgrade(req, socket, head, (ws) => {
         ws.on("error", (err: Error) => {
