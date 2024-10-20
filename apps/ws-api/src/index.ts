@@ -1,5 +1,6 @@
 import http from "http";
-import  { WebSocket , WebSocketServer } from "ws";
+import { WebSocket, WebSocketServer } from "ws";
+import type { authToken } from "../types/ws";
 
 const server = http.createServer((req, res) => {
     res.setHeader("content-type", "application/json");
@@ -10,18 +11,16 @@ const server = http.createServer((req, res) => {
 });
 
 const wss = new WebSocketServer({ noServer: true });
+const clients = new Map<authToken["user"]["id"], WebSocket>();
 
 server.on("upgrade", (req, socket, head) => {
     socket.on("error", (err: Error) => {
         console.error(err);
     });
-   
-    console.log( req.url);
 
-    if (!!req.url?.includes("authorization") && req.url.includes("isAuthenticated") !== false) {
-        const url = new URL(req.url!)
-        
-    console.log( url);
+    const authStatus = req.url?.split("*")[3]
+    if (authStatus !== "authenticated") {
+
         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
         socket.destroy();
         return;
@@ -31,27 +30,37 @@ server.on("upgrade", (req, socket, head) => {
         ws.on("error", (err: Error) => {
             console.error(err);
         });
-       
+
         wss.emit("connection", ws, req);
     });
 });
 
 wss.on("connection", (ws, req) => {
-    
-    
-    console.log("Client connected");
-    
+
+    const token = req.url ? JSON.parse(req.url?.split("*")[1].replaceAll("%22", `"`)) as authToken : null;
+    console.log("Client connected", token);
+    if (!token) return null;
+    clients.set(token?.user.id, ws)
     ws.on("message", (data, isBinary) => {
-        const url = new URL(req.url!)
-    console.log( url);
+
+        const client = clients.get(token?.user.id)!
         console.log("Data received:", data.toString());
-        
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(data, { binary: isBinary });
+        const admin = clients.get("9976226646")!
+        if (client.readyState === WebSocket.OPEN) {
+            if(client != admin){
+                admin.send(data,{binary:isBinary})
+            }else{
+                client.send(data,{binary:isBinary})
             }
-        });
+            
+        }
+        // wss.clients.forEach((client) => {
+        //     if (client.readyState === WebSocket.OPEN) {
+        //         client.send(data, { binary: isBinary });
+        //     }
+        // }); 
     });
+
 
     ws.on("error", (err) => {
         console.error("WebSocket error:", err);

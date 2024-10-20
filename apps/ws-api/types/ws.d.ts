@@ -1,7 +1,10 @@
-import  WebSocket  from "ws";  
 
-declare module "ws" {
-    interface WebSocket {
-        isConnectionAlive: boolean;
-    }
+export interface authToken {
+    user: {
+        name: string,
+        email: string,
+        image: string,
+        id: string,
+    },
+    expires: string,
 }
