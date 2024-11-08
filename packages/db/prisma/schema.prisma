@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,13 +8,24 @@ datasource db {
 }
 
 model users {
-  id Int @unique @default(autoincrement())
-  publicId String
-  name String
-  email String @unique
-  password  String? 
-  provider Providers
-  createdAt DateTime @default(now())
+  id        Int       @unique @default(autoincrement())
+  publicId  String    @unique 
+  name      String
+  email     String    @unique
+  image     String
+  password  String?
+  provider  Providers
+  createdAt DateTime  @default(now())
+  friends   friends[] 
+}
+
+model friends {
+  id         Int     @unique @default(autoincrement())
+  user_Id    String  @unique
+  users      users   @relation(fields: [user_Id], references: [publicId])
+  total_chats Int
+  friendIds  String[]
+  updatedAt  DateTime @updatedAt()
 }
 
 enum Providers {
