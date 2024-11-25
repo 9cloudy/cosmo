@@ -3,19 +3,15 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-
-interface props {
-  token: string;
-}
-
-export default function MessageFeed(props: props) {
+export default function MessageFeed({ids}:{ids:string[]}) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
   const [inputMessage, setInputMessage] = useState("");
-  const { data: session, status, update } = useSession()
+  const { data: session, status, update } = useSession();
   useEffect(() => {
     // Cleanup WebSocket connection when component unmounts
+    
     return () => {
       if (socket) {
         socket.close();
@@ -24,8 +20,8 @@ export default function MessageFeed(props: props) {
   }, [socket]);
 
   const connectToWebSocket = () => {
-    const newSocket = new WebSocket(`ws://localhost:8080?authorization=Bearer*${props.token}?
-    isAuthenticated=${status}`);
+    const newSocket = new WebSocket(`ws://localhost:8080?authorization=Bearer*${JSON.stringify(session)}*?
+    isAuthenticated=*${status}*${ids}`);
 
     newSocket.onopen = () => {
       console.log("WebSocket connected");
@@ -61,28 +57,7 @@ export default function MessageFeed(props: props) {
       <button onClick={connectToWebSocket} disabled={isConnected}>
         {isConnected ? "Connected" : "Connect to client"}
       </button>
-      <button onClick={sendMessage}>send hey</button>
-      <div>
-        <h2>Messages</h2>
-        <ul>
-          {messages.map((msg, index) => (
-            <li key={index}>{msg}</li>
-          ))}
-        </ul>
-      </div>
-      {isConnected && (
-        <div>
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Type a message"
-          />
-          <button onClick={sendMessage} disabled={!inputMessage}>
-            Send
-          </button>
-        </div>
-      )}
+      
     </>
   );
 }

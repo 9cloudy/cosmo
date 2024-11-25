@@ -11,17 +11,18 @@ import { signIn, signOut } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@repo/ui/components/dialog";
-import { X } from "lucide-react";
+import { LogIn, X } from "lucide-react";
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  hide?: boolean;
+}
 
-export function LoginForm({ className, ...props }: UserAuthFormProps) {
+export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
@@ -59,20 +60,25 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
     });
     setIsLoading(false);
   }
-  
+
   return (
     <Dialog open={isOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setIsOpen(true);
-            window.location.href = "/#login";
-          }}
-          className="w-[10vw]"
-        >
-          Log In
-        </Button>
+        {hide ? (
+          ""
+        ) : (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setIsOpen(true);
+              window.location.href = "/#login";
+            }}
+            className={`${className ? className : "justify-start px-2 text-gray-300 hover:bg-white/10 hover:text-white"}`}
+          >
+            <LogIn className="mr-2 h-4 w-4" />
+            Log in
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <div className="grid gap-2 ">
@@ -165,6 +171,8 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
           )}{" "}
           Github
         </Button>
+        <button onClick={() => signOut()}>log out</button>
+        <Button onClick={() => console.log(session)}>check</Button>
       </DialogContent>
     </Dialog>
   );

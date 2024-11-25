@@ -7,8 +7,8 @@ import { Icons } from "../ui/icons";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useSession } from "next-auth/react";
-import { signIn, signOut } from "next-auth/react";
+
+import { signIn} from "next-auth/react";
 import axios from "axios";
 import {
   Dialog,
@@ -20,6 +20,7 @@ import {
   DialogClose,
 } from "@repo/ui/components/dialog";
 import { X } from "lucide-react";
+import convertToUrl from "@repo/ui/lib/imageToUrl";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -28,7 +29,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [username, setUsername] = React.useState<string>("");
-  const session = useSession();
+  const [avatar,setAvatar] = React.useState("")
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
@@ -39,28 +40,31 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         email,
         password,
         username,
+        avatar
       },
     });
     console.log(res.data.msg);
     if (res.data.msg === "account created successfully") {
       window.location.href = "/#login";
+      localStorage.setItem("avatar",avatar)
     }
     setIsLoading(false);
   }
   async function googleSignIn() {
     setIsLoading(true);
     await signIn("google", {
-      callbackUrl: "/inbox",
+      callbackUrl: "/",
     });
     setIsLoading(false);
   }
   async function githubSignIn() {
     setIsLoading(true);
     await signIn("github", {
-      callbackUrl: "/inbox",
+      callbackUrl: "/",
     });
     setIsLoading(false);
   }
+  
   return (
     <div className={cn("grid gap-6 ", className)} {...props}>
       <div className="grid gap-2 ">
@@ -106,7 +110,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                   <X className="h-4 w-4" />
                 </button>
               </DialogClose>
-              <DialogTitle>Choose a username.</DialogTitle>
+              <DialogTitle>Choose a username & avatar</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid  items-center gap-4">
@@ -119,6 +123,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               </div>
               <DialogDescription>
                 This will be your public display name.
+              </DialogDescription>
+              <Input type="file" onChange={async(e)=>setAvatar(await convertToUrl(e.target.files![0]))}></Input>
+              <DialogDescription>
+                choose a avatar.
               </DialogDescription>
             </div>
 
@@ -151,7 +159,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Icons.google className="mr-2 h-4 w-4" />
-        )}{" "}
+        )}
         Google
       </Button>
       <Button
@@ -167,8 +175,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         )}{" "}
         Github
       </Button>
-      <button onClick={() => signOut()}>log out</button>
-      <Button onClick={() => console.log(session)}>check</Button>
+      
     </div>
   );
 }
