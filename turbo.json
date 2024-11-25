@@ -5,7 +5,8 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env":["NEXTAUTH_URL", "AUTH_GITHUB_ID", "AUTH_GITHUB_SECRET" ,"GOOGLE_CLIENT_ID","GOOGLE_CLIENT_SECRET","DATABASE_URL"]
     },
     "lint": {
       "dependsOn": ["^lint"]

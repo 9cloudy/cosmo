@@ -1,7 +1,7 @@
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import type { authToken } from "../types/ws";
-
+import prisma from "@repo/db/prisma-client"
 const server = http.createServer((req, res) => {
     res.setHeader("content-type", "application/json");
     res.writeHead(200);
@@ -20,7 +20,6 @@ server.on("upgrade", (req, socket, head) => {
 
     const authStatus = req.url?.split("*")[3]
     if (authStatus !== "authenticated") {
-
         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
         socket.destroy();
         return;
@@ -38,21 +37,21 @@ server.on("upgrade", (req, socket, head) => {
 wss.on("connection", (ws, req) => {
 
     const token = req.url ? JSON.parse(req.url?.split("*")[1].replaceAll("%22", `"`)) as authToken : null;
+    const clientId = req.url?.split("*")[4] as string;
     console.log("Client connected", token);
     if (!token) return null;
     clients.set(token?.user.id, ws)
+    
     ws.on("message", (data, isBinary) => {
-
-        const client = clients.get(token?.user.id)!
-        console.log("Data received:", data.toString());
-        const admin = clients.get("9976226646")!
-        if (client.readyState === WebSocket.OPEN) {
-            if(client != admin){
-                admin.send(data,{binary:isBinary})
-            }else{
-                client.send(data,{binary:isBinary})
+        const client = clients.get(clientId)!;
+        const admin = clients.get(token?.user.id)!;
+            console.log(clients.has(clientId));
+        if (admin.readyState === WebSocket.OPEN && client.readyState === WebSocket.OPEN ) {
+            if (ws == admin) {
+                client.send(data, { binary: isBinary })
+            } else {
+                admin.send(data, { binary: isBinary })
             }
-            
         }
         // wss.clients.forEach((client) => {
         //     if (client.readyState === WebSocket.OPEN) {
@@ -60,7 +59,6 @@ wss.on("connection", (ws, req) => {
         //     }
         // }); 
     });
-
 
     ws.on("error", (err) => {
         console.error("WebSocket error:", err);
