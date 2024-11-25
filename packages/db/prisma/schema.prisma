@@ -8,8 +8,8 @@ datasource db {
 }
 
 model users {
-  id        Int       @unique @default(autoincrement())
-  publicId  String    @unique 
+  id        Int       @id @default(autoincrement())
+  publicId  String    @unique
   name      String
   email     String    @unique
   image     String
@@ -17,19 +17,27 @@ model users {
   provider  Providers
   createdAt DateTime  @default(now())
   friends   friends[] 
+  texts  texts[]
 }
 
 model friends {
-  id         Int     @unique @default(autoincrement())
-  user_Id    String  @unique
-  users      users   @relation(fields: [user_Id], references: [publicId])
+  id          Int       @id @default(autoincrement())
+  user_Id     String
+  users       users     @relation(fields: [user_Id], references: [publicId])
   total_chats Int
-  friendIds  String[]
-  updatedAt  DateTime @updatedAt()
+  friendIds   String[]
+  updatedAt   DateTime  @updatedAt
+}
+
+model texts {
+  id Int @id @default(autoincrement())
+  user_id String
+  users users @relation(fields:[user_id],references: [publicId])
+  last_message String
 }
 
 enum Providers {
-  CREDENTAILS
+  CREDENTIALS
   GOOGLE
   GITHUB
 }
