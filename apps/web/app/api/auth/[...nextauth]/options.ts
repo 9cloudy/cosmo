@@ -11,7 +11,8 @@ import { generateId } from "~/utils/generator";
 const userSchema = z.object({
   email: z.string().min(1, "email required").email("enter a valid email"),
   password: z.string().min(1, "password required").max(10)
-})
+});
+
 export const options: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -27,7 +28,7 @@ export const options: NextAuthOptions = {
 
         const user = await prisma.users.findFirst({
           where: { email: data?.email },
-          select: { name: true, email: true, password: true, id: true, publicId: true }
+          select: { name: true, email: true, password: true, id: true, publicId: true, image: true }
         })
         if (!user) return null;
 
@@ -38,7 +39,7 @@ export const options: NextAuthOptions = {
           id: `${user.id}`,
           username: user.name,
           email: user.email,
-          userId: user.publicId
+          userId: user.publicId,
         }
       }
     }),
@@ -53,12 +54,11 @@ export const options: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (!user.email) return false;
       if (account?.provider === "credentials") return true;
-
+      if (!user) return false;
       const User = await prisma.users.findFirst({
         where: {
-          email: user.email,
+          email: user.email!,
         }
       })
       if (User) return true;
@@ -68,32 +68,49 @@ export const options: NextAuthOptions = {
         const publicID = generateId();
         await prisma.users.create({
           data: {
-            email: user.email,
+            email: user.email!,
             name: user.name!,
             provider: provider,
-            publicId: publicID
+            publicId: publicID!,
+            image: user.image!
           }
         })
+
       } catch (err) {
-        return false
+        return false;
       }
       return true;
     },
-    async session({ session, token }: any) {
-
-      session.user.id = token.id
-      session.user.username = token.username
-      session.user.email = token.email
-      session.user.userId = token.userId
-      return session
+    async jwt({ token, user, account, profile }: any) {
+      if (account && profile) {
+        if (account.provider === "google" || "github") {
+          const user = await prisma.users.findFirst({
+            where: {
+              email: profile.email
+            }, select: {
+              publicId: true,
+              image: true
+            }
+          })
+          token.username = profile.name
+          token.email = profile.email
+          token.userId = user?.publicId
+          token.image = profile.image
+        }
+      }
+      if (user && !profile) {
+        token.sub = user.id;
+        token.username = user.username;
+        token.email = user.email;
+        token.userId = user.userId;
+      }
+      return token;
     },
-    async jwt({ token, user }:any) {
-      
-      token.id = user?.id
-      token.username = user?.username
-      token.email = user?.email
-      token.userId = user?.publicId
-      return token
+    async session({ session, token }: any) {
+      session.user.id = token.userId;
+      session.user.name = token.username;
+      session.user.email = token.email;
+      return session;
     }
   },
   session: {

@@ -6,11 +6,12 @@ import { generateId } from "~/utils/generator";
 const userSchema = z.object({
     username:z.string().min(1,"username required").max(100),
     email:z.string().min(1,"email required").email("enter a valid email"),
-    password:z.string().min(1,"password required").max(10)
+    password:z.string().min(1,"password required").max(10),
+    avatar:z.string()
 })
 export async function POST(req:NextRequest){
-    const {username ,email,password}:{username:string,email:string,password:string}= userSchema.parse(await req.json())
-    
+    const {username ,email,password,avatar}:{username:string,email:string,password:string,avatar:string}= userSchema.parse(await req.json())
+
     const existingUser = await prisma.users.findFirst({
         where:{
             email:email,
@@ -20,24 +21,18 @@ export async function POST(req:NextRequest){
         const hashedPassword = await bcrypt.hash(password,10)
         const publicID = generateId();
         try{
-            const user = await prisma.users.create({
+             await prisma.users.create({
                 data:{
                   name:username,
                   email:email,
                   password:hashedPassword,
-                  provider:Providers.CREDENTAILS,
-                  publicId:publicID
-                },
-                select:{ 
-                    email:true, 
-                    id:true,
-                    name:true
+                  provider:Providers.CREDENTIALS,
+                  publicId:publicID,
+                  image:avatar
                 }
             })
 
-            
-            const res = NextResponse.json({msg:"account created successfully"})
-            return res;
+            return NextResponse.json({msg:"account created successfully"})
             
         }catch(err){
           return NextResponse.json({err})
