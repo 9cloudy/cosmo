@@ -1,9 +1,9 @@
 import { getServerSession } from "next-auth";
 import { options } from "../../auth/[...nextauth]/options";
 import prisma from "@repo/db/prisma-client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(res: NextResponse) {
+export async function GET(req:NextRequest) {
     const session = await getServerSession(options);
     if (!session) return NextResponse.json({ msg: "please sign in" });
     
