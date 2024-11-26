@@ -4,7 +4,7 @@
 import { ArrowRight, MessageSquare, UserPlus, Users, Zap } from "lucide-react";
 import { Button } from "./button";
 import { useSession } from "next-auth/react";
-import { useToast } from "@repo/ui/hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 import { Card, CardContent } from "./card";
 
 export default function Homepage() {

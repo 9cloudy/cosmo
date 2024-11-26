@@ -20,7 +20,7 @@ import {
   DialogClose,
 } from "@repo/ui/components/dialog";
 import { X } from "lucide-react";
-import convertToUrl from "@repo/ui/lib/imageToUrl";
+import convertToUrl from "../../lib/imageToUrl";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 

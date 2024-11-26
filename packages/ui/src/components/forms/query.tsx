@@ -8,7 +8,7 @@ import { Input } from ".././ui/input";
 import { Card, CardContent } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import axios from "axios";
-import { useToast } from "@repo/ui/hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 
 type User = {
   publicId: string;

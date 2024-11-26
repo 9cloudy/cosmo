@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import { useToast } from "@repo/ui/hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 import { signOut, useSession } from "next-auth/react";
 import {
   Sheet,
