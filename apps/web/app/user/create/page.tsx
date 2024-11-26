@@ -76,20 +76,6 @@ export default function AuthenticationPage() {
           </p>
         </div>
       </div>
-      <div className="absolute inset-0 lg:hidden">
-        <Image
-          src="/examples/authentication-light.png"
-          alt=""
-          fill
-          className="object-cover md:hidden block dark:hidden"
-        />
-        <Image
-          src="/examples/authentication-dark.png"
-          alt=""
-          fill
-          className="object-cover md:hidden hidden dark:block"
-        />
-      </div>
     </div>
   )
 }
