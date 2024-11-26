@@ -42,8 +42,8 @@ export function Navbar() {
     <header className="relative border-b border-white/10 bg-black backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <a href="/" className="text-xl font-bold text-white">
-            GoChat
+          <a href="/" className="text-3xl font-sans font-bold text-white">
+            cosmo
           </a>
 
           <nav className="flex items-center space-x-8">
@@ -94,8 +94,7 @@ export function Navbar() {
                   </SheetHeader>
                   <nav className="flex flex-col p-4">
                     <a
-                                    onClick={loadChats}
-
+                      onClick={loadChats}
                       className="flex items-center space-x-2 rounded-lg px-2 py-2 text-gray-300 hover:bg-white/10 hover:text-white"
                     >
                       <Inbox className="h-5 w-5" />
@@ -129,7 +128,7 @@ export function Navbar() {
                     <Button
                       variant="ghost"
                       className="justify-start px-2 text-gray-300 hover:bg-white/10 hover:text-white"
-                      onClick={()=>signOut()}
+                      onClick={() => signOut()}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       Log out
@@ -167,7 +166,10 @@ export function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem className="text-gray-200 focus:bg-white/10 focus:text-white">
-                    <LogOut className="mr-2 h-4 w-4" onClick={()=>signOut()} />
+                    <LogOut
+                      className="mr-2 h-4 w-4"
+                      onClick={() => signOut()}
+                    />
                     <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
