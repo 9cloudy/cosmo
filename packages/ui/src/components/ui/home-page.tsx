@@ -11,8 +11,7 @@ export default function Homepage() {
   const session = useSession();
   const {toast} = useToast();
   function redirect(){
-    
-    if(session.status = "unauthenticated") return toast({
+    if(session.status === "unauthenticated") return toast({
       title:"please sign in or create account"
     })
     window.location.href = "/find";
