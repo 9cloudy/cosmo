@@ -72,6 +72,7 @@ export function Navbar() {
                 <span className="sr-only">GitHub</span>
               </a>
             </div>
+            <LoginForm hide={true}/>
             <ModeToggle />
             <div className="md:hidden">
               <Sheet>
