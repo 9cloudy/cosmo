@@ -39,7 +39,7 @@ export default function Homepage() {
         </h1>
 
         <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto">
-          comso provides the tools and infrastructure to build, scale,
+          cosmo provides the tools and infrastructure to build, scale,
           and secure faster, more personalized conversations.
         </p>
 
