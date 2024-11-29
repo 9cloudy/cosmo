@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Inbox, LogOut, Search, Settings } from "lucide-react";
+import { Github, Inbox, LogIn, LogOut, Search, Settings } from "lucide-react";
 import { Button } from "./button";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { ModeToggle } from "./theme-toggle";
@@ -73,7 +73,6 @@ export function Navbar() {
               </a>
             </div>
             <ModeToggle />
-            <LoginForm hide={true} />
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
@@ -161,9 +160,7 @@ export function Navbar() {
                     <span>Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/10" />
-                  <DropdownMenuItem>
-                    <LoginForm />
-                  </DropdownMenuItem>
+                  <LoginForm className="w-full justify-start"/>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem className="text-gray-200 focus:bg-white/10 focus:text-white">
                     <LogOut

@@ -5,8 +5,7 @@ import { Icons } from "../ui/icons";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useSession } from "next-auth/react";
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 import {
   Dialog,
@@ -27,9 +26,8 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
-  const session = useSession();
 
-  React.useState(() => {
+  React.useEffect(() => {
     const path = window.location.hash;
     if (path.includes("#login")) setIsOpen(true);
   });
@@ -39,7 +37,7 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
     await signIn("credentials", {
       email,
       password,
-      callbackUrl: "/inbox",
+      callbackUrl: "/find",
     });
     setIsOpen(false);
     setIsLoading(false);
@@ -48,7 +46,7 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
   async function googleSignIn() {
     setIsLoading(true);
     await signIn("google", {
-      callbackUrl: "/inbox",
+      callbackUrl: "/find",
     });
     setIsLoading(false);
   }
@@ -56,7 +54,7 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
   async function githubSignIn() {
     setIsLoading(true);
     await signIn("github", {
-      callbackUrl: "/inbox",
+      callbackUrl: "/find",
     });
     setIsLoading(false);
   }
@@ -171,8 +169,6 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
           )}{" "}
           Github
         </Button>
-        <button onClick={() => signOut()}>log out</button>
-        <Button onClick={() => console.log(session)}>check</Button>
       </DialogContent>
     </Dialog>
   );
