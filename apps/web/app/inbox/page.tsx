@@ -15,6 +15,7 @@ import { Separator } from "@repo/ui/components/separator";
 import { MessageCircle, Search, Users, ArrowLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { token } from "~/types";
+import { Icons } from "@repo/ui/components/icons";
 
 export default function Inbox() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
@@ -22,6 +23,8 @@ export default function Inbox() {
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setisLoading] = useState(false);
+
   const { data: session, status } = useSession() as any as token;
   useEffect(() => {
     // Cleanup WebSocket connection when component unmounts
@@ -36,7 +39,7 @@ export default function Inbox() {
     const newSocket =
       new WebSocket(`ws://localhost:8080?authorization=Bearer*${JSON.stringify(session)}*?
     isAuthenticated=*${status}*${selectedChat}`);
-      encodeURIComponent
+    encodeURIComponent;
     newSocket.onopen = () => {
       console.log("WebSocket connected");
       setIsConnected(true);
@@ -75,8 +78,7 @@ export default function Inbox() {
   return (
     <>
       <div className="flex h-[calc(100vh-4rem)] bg-white dark:bg-[#313338] text-gray-900 dark:text-gray-100">
-        {/* Sidebar */}
-        <div className="w-16 bg-gray-100 dark:bg-[#2B2D31] flex-shrink-0 flex flex-col items-center py-4 space-y-4 border-r border-gray-200 dark:border-gray-800 hidden md:flex">
+        <div className="w-16 bg-gray-100 dark:bg-[#2B2D31] flex-shrink-0 flex-col items-center py-4 space-y-4 border-r border-gray-200 dark:border-gray-800 hidden md:flex">
           <Button
             variant="ghost"
             size="icon"
@@ -94,7 +96,6 @@ export default function Inbox() {
           </Button>
         </div>
 
-        {/* Chat list */}
         <div
           className={`w-full md:w-64 bg-gray-50 dark:bg-[#2B2D31] border-r border-gray-200 dark:border-gray-800 flex flex-col ${selectedChat ? "hidden md:flex" : "flex"}`}
         >
@@ -109,7 +110,6 @@ export default function Inbox() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </div>
-          {/* Add navigation buttons here */}
           <div className="md:hidden flex items-center gap-2 px-4 pb-2">
             <Button
               variant="ghost"
@@ -158,7 +158,7 @@ export default function Inbox() {
                     <AvatarFallback>{chat.name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col justify-start flex-1 min-w-0">
-                    <span className="font-semibold text-sm truncate w-full">
+                    <span className=" font-medium text-sm truncate w-full">
                       {chat.name}
                     </span>
                     {/* <span className="text-xs text-gray-500 dark:text-gray-400 truncate w-full">
@@ -174,71 +174,99 @@ export default function Inbox() {
           </ScrollArea>
         </div>
         <div
-      className={`flex-grow flex flex-col bg-gray-50 dark:bg-[#313338] ${selectedChat ? "flex" : "hidden md:flex"}`}>
-      {selectedChat ? (
-        <>
-          <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mr-2 md:hidden"
-              onClick={() => setSelectedChat(null)}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <Avatar className="h-8 w-8 mr-3">
-              <AvatarImage
-                src={chats.find((chat) => chat.publicId === selectedChat)?.image}
-                alt={chats.find((chat) => chat.publicId === selectedChat)?.name}
-              />
-              <AvatarFallback>
-                {chats.find((chat) => chat.publicId === selectedChat)?.name[0]}
-              </AvatarFallback>
-            </Avatar>
-            <h2 className="font-semibold">
-              {chats.find((chat) => chat.publicId === selectedChat)?.name}
-            </h2>
-          </div>
-          <ScrollArea className="flex-grow p-4">
-            {messages.map((message,id) => (
-              <div key={id} className="mb-4 group">
-                <div className="flex items-start gap-4 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded p-2 -mx-2">
-                  <Avatar className="h-10 w-10 mt-0.5">
-                    <AvatarImage
-                      src={message.includes("&*&*$$u$$*&*& ")? session?.user?.image:chats.find((chat) => chat.publicId === selectedChat)?.image}
-                    />
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{message.replace("&*&*$$u$$*&*&","")}</span>
-                      {/* <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {message.timestamp}
-                      </span> */}
+          className={`flex-grow flex flex-col bg-gray-50 dark:bg-[#313338] ${selectedChat ? "flex" : "hidden md:flex"}`}
+        >
+          {selectedChat ? (
+            <>
+              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="mr-2 md:hidden"
+                  onClick={() => setSelectedChat(null)}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <Avatar className="h-8 w-8 mr-3">
+                  <AvatarImage
+                    src={
+                      chats.find((chat) => chat.publicId === selectedChat)
+                        ?.image
+                    }
+                    alt={
+                      chats.find((chat) => chat.publicId === selectedChat)?.name
+                    }
+                  />
+                  <AvatarFallback>
+                    {
+                      chats.find((chat) => chat.publicId === selectedChat)
+                        ?.name[0]
+                    }
+                  </AvatarFallback>
+                </Avatar>
+                <h2 className="font-semibold">
+                  {chats.find((chat) => chat.publicId === selectedChat)?.name}
+                </h2>
+              </div>
+              <ScrollArea className="flex-grow p-4">
+                {messages.map((message, id) => (
+                  <div key={id} className="mb-4 group">
+                    <div className="flex items-start gap-4 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded p-2 -mx-2">
+                      <Avatar className="h-10 w-10 mt-0.5">
+                        <AvatarImage
+                          src={
+                            message.includes("&*&*$$u$$*&*& ")
+                              ? session?.user?.image
+                              : chats.find(
+                                  (chat) => chat.publicId === selectedChat
+                                )?.image
+                          }
+                        />
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className=" font-thin">
+                            {message.replace("&*&*$$u$$*&*&", "")}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                ))}
+              </ScrollArea>
+              <div className="p-4 mx-4 mb-4">
+                <Input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => {
+                    setInputMessage(e.target.value);
+                    console.log(inputMessage);
+                  }}
+                  placeholder="Message" 
+                  className="bg-gray-100 dark:bg-[#383A40] border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+                <div className="w-full flex justify-end">
+                <Button
+                  onClick={sendMessage}
+                  disabled={isLoading}
+                  variant={"ghost"}
+                  className="absolute bottom-8"
+                >
+                  {isLoading ? (
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Icons.Send />
+                  )}
+                </Button>
                 </div>
               </div>
-            ))}
-          </ScrollArea>
-          <div className="p-4 mx-4 mb-4">
-            <Input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => {setInputMessage(e.target.value);console.log(inputMessage)}}
-              placeholder="Message"
-              className="bg-gray-100 dark:bg-[#383A40] border-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-            <button onClick={sendMessage} disabled={!inputMessage}>
-              Send
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-          Select a chat to start messaging
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+              Select a chat to start messaging
+            </div>
+          )}
         </div>
-      )}
-    </div>
       </div>
     </>
   );
