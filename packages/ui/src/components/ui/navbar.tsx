@@ -120,6 +120,7 @@ export function Navbar() {
                     <Button
                       variant="ghost"
                       className="justify-start px-2 text-gray-300 hover:bg-white/10 hover:text-white"
+                      onClick={()=>window.location.href = "/settings"} 
                     >
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
@@ -156,7 +157,7 @@ export function Navbar() {
                   align="end"
                   forceMount
                 >
-                  <DropdownMenuItem className="text-gray-200 focus:bg-white/10 focus:text-white">
+                  <DropdownMenuItem onClick={()=>window.location.href = "/settings"} className="text-gray-200 focus:bg-white/10 focus:text-white">
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>

@@ -46,6 +46,7 @@
     "./*": "./src/components/forms/*.tsx",
     "./components/*": "./src/components/ui/*.tsx",
     "./theme-provider": "./src/lib/theme-provider.tsx",
-    "./theme-toggle": "./src/components/dialog.tsx"
+    "./theme-toggle": "./src/components/dialog.tsx",
+    "./hooks/*" : "./src/hooks/*ts"
   }
 }

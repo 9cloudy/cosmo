@@ -37,26 +37,24 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
     await signIn("credentials", {
       email,
       password,
-      callbackUrl: "/find",
     });
     setIsOpen(false);
     setIsLoading(false);
+    window.location.hash = ""
   }
 
   async function googleSignIn() {
     setIsLoading(true);
-    await signIn("google", {
-      callbackUrl: "/find",
-    });
+    await signIn("google");
     setIsLoading(false);
+    window.location.hash = ""
   }
 
   async function githubSignIn() {
     setIsLoading(true);
-    await signIn("github", {
-      callbackUrl: "/find",
-    });
+    await signIn("github");
     setIsLoading(false);
+    window.location.hash = ""
   }
 
   return (
