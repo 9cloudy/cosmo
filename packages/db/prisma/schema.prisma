@@ -17,27 +17,42 @@ model users {
   provider  Providers
   createdAt DateTime  @default(now())
   friends   friends[] 
-  texts  texts[]
+  chats  chat[]
 }
 
 model friends {
-  id          Int       @id @default(autoincrement())
+  fnd_id      Int       @id @default(autoincrement())
   user_Id     String
+  status      status
   users       users     @relation(fields: [user_Id], references: [publicId])
-  total_chats Int
-  friendIds   String[]
+  friendIds   String
   updatedAt   DateTime  @updatedAt
 }
 
-model texts {
-  id Int @id @default(autoincrement())
-  user_id String
+model chat {
+  chat_id Int @id @default(autoincrement())
+  user_id String 
   users users @relation(fields:[user_id],references: [publicId])
   last_message String
+  last_time DateTime @default(now())
+  texts text[]
+}
+
+model text {
+  text_id Int @id @default(autoincrement())
+  chat_id Int
+  time DateTime @default(now())
+  chat chat @relation(fields:[chat_id],references: [chat_id])
 }
 
 enum Providers {
   CREDENTIALS
   GOOGLE
   GITHUB
+}
+
+enum status {
+  PENDING
+  CONFIRMED
+  DENIED
 }
