@@ -11,6 +11,8 @@ import axios from "axios";
 import { useToast } from "../../hooks/use-toast";
 import "../ui/styles/query.css";
 import { Icons } from "../ui/icons";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import Requests from "../ui/requests";
 
 type User = {
   publicId: string;
@@ -37,16 +39,15 @@ export default function QueryForm() {
   const handleAddFriend = async (userId: string) => {
     try {
       await axios.post("/api/user/add", {
-        id: [userId],
+        id: userId,
       });
       toast({
-        title: "friend added :D",
+        title: "request sent",
       });
     } catch (err) {
       console.log("not added");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
@@ -69,16 +70,23 @@ export default function QueryForm() {
               Search
             </Button>
           </form>
+          <Separator className=" bg-gray-200 dark:bg-gray-700" />
+          <div className=" flex flex-col justify-end h-full mt-[10vh] w-full items-center">
+            <Requests title="pending requests" className=""/>
+          </div>
         </div>
       </aside>
 
       <main className="flex-1 flex flex-col">
         <header className="md:hidden sticky top-0 z-10 bg-card shadow-md p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <div className="flex items-center space-x-3 w-full">
               <Users className="h-6 w-6 text-primary" />
               <h1 className="text-xl font-bold text-primary">Find Friends</h1>
             </div>
+            <div className=" flex flex-row-reverse h-full items-center ">
+                <Requests title="requests" className="-pb-1  text-lg absolute font-normal text-primary"/>
+              </div>
           </div>
           <form className="flex gap-2">
             <Input
@@ -127,7 +135,7 @@ export default function QueryForm() {
                           </div>
                         </div>
                         <Button
-                          onClick={() => {
+                          onClick={(e) => {
                             setLoading(true);
                             handleAddFriend(user.publicId);
                           }}
@@ -163,7 +171,7 @@ export default function QueryForm() {
                   <p className="text-center text-muted-foreground">
                     Enter the USER_ID to find the user {"(✿◠‿◠)"}.
                   </p>
-                  
+
                   <p className="text-center text-muted-foreground">
                     find your USER_ID in settings {">"} profile.
                   </p>

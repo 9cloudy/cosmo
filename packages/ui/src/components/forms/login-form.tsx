@@ -34,13 +34,13 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
 
   async function onSubmit() {
     setIsLoading(true);
+    window.location.hash = ""
     await signIn("credentials", {
       email,
       password,
     });
     setIsOpen(false);
     setIsLoading(false);
-    window.location.hash = ""
   }
 
   async function googleSignIn() {
