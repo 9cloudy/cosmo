@@ -15,7 +15,7 @@ import { session } from "@repo/ui/lib/types";
 import { Card, CardContent } from "./card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Icons } from "./icons";
-import { useToast } from "@repo/ui/hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 
 export default function Requests({ title,className }: { title: string ,className:string}) {
   const [Requests, setRequests] = useState<User[]>([]);
