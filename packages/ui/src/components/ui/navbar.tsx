@@ -28,8 +28,7 @@ export function Navbar() {
   const session = useSession();
   const image = localStorage.getItem("avatar")! || session.data?.user?.image!;
   async function loadChats() {
-    const res = await axios.get("/api/chats/load");
-
+    const res = await axios.get("/api/chats/");
     if (res.data.msg) {
       return toast({
         title: res.data.msg,
