@@ -33,6 +33,7 @@ model chat {
   chat_id Int @id @default(autoincrement())
   user_id String 
   users users @relation(fields:[user_id],references: [publicId])
+  friend_id String
   last_message String
   last_time DateTime @default(now())
   texts text[]
