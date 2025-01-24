@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "@repo/ui/components/button";
-import MessageFeed from "@repo/ui/inbox";
-
 import { useEffect, useState } from "react";
 import {
   Avatar,
@@ -18,17 +16,20 @@ import { token } from "~/types";
 import { Icons } from "@repo/ui/components/icons";
 
 export default function Inbox() {
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [Recipant, setRecipant] = useState<string | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<
+    {
+      senderId: string;
+      message: string;
+    }[]
+  >([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setisLoading] = useState(false);
 
   const { data: session, status } = useSession() as any as token;
   useEffect(() => {
-    // Cleanup WebSocket connection when component unmounts
-    console.log(selectedChat);
     return () => {
       if (socket) {
         socket.close();
@@ -38,8 +39,7 @@ export default function Inbox() {
   const connectToWebSocket = () => {
     const newSocket =
       new WebSocket(`ws://localhost:8080?authorization=Bearer*${JSON.stringify(session)}*?
-    isAuthenticated=*${status}*${selectedChat}`);
-    encodeURIComponent;
+    isAuthenticated=*${status}`);
     newSocket.onopen = () => {
       console.log("WebSocket connected");
       setIsConnected(true);
@@ -47,7 +47,7 @@ export default function Inbox() {
 
     newSocket.onmessage = (event) => {
       console.log("Message from server:", event.data);
-      setMessages((prev) => [...prev, event.data as string]);
+      setMessages((prev) => [...prev, JSON.parse(event.data)]);
     };
 
     newSocket.onerror = (error) => {
@@ -63,8 +63,17 @@ export default function Inbox() {
   };
   const sendMessage = () => {
     if (socket && isConnected && inputMessage) {
-      socket.send(inputMessage);
-      setMessages((prev) => [...prev, `&*&*$$u$$*&*& ${inputMessage}`]);
+      socket.send(
+        JSON.stringify({ clientId: Recipant, message: inputMessage })
+      );
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          senderId: "",
+          message: inputMessage,
+        },
+      ]);
       setInputMessage("");
     }
   };
@@ -97,7 +106,7 @@ export default function Inbox() {
         </div>
 
         <div
-          className={`w-full md:w-64 bg-gray-50 dark:bg-[#2B2D31] border-r border-gray-200 dark:border-gray-800 flex flex-col ${selectedChat ? "hidden md:flex" : "flex"}`}
+          className={`w-full md:w-64 bg-gray-50 dark:bg-[#2B2D31] border-r border-gray-200 dark:border-gray-800 flex flex-col ${Recipant ? "hidden md:flex" : "flex"}`}
         >
           <div className="p-4 flex items-center justify-between">
             <div className="font-semibold text-lg">Direct Messages</div>
@@ -105,7 +114,7 @@ export default function Inbox() {
               variant="ghost"
               size="icon"
               className="md:hidden"
-              onClick={() => setSelectedChat(null)}
+              onClick={() => setRecipant(null)}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -149,7 +158,7 @@ export default function Inbox() {
                   variant="ghost"
                   className={`w-full h-[8vh] justify-start px-2 py-2 hover:bg-gray-300 dark:hover:bg-[#323539]`}
                   onClick={() => {
-                    setSelectedChat(chat.publicId);
+                    setRecipant(chat.publicId);
                     connectToWebSocket();
                   }}
                 >
@@ -174,59 +183,52 @@ export default function Inbox() {
           </ScrollArea>
         </div>
         <div
-          className={`flex-grow flex flex-col bg-gray-50 dark:bg-[#313338] ${selectedChat ? "flex" : "hidden md:flex"}`}
+          className={`flex-grow flex flex-col bg-gray-50 dark:bg-[#313338] ${Recipant ? "flex" : "hidden md:flex"}`}
         >
-          {selectedChat ? (
+          {Recipant ? (
             <>
               <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="mr-2 md:hidden"
-                  onClick={() => setSelectedChat(null)}
+                  onClick={() => setRecipant(null)}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <Avatar className="h-8 w-8 mr-3">
                   <AvatarImage
                     src={
-                      chats.find((chat) => chat.publicId === selectedChat)
-                        ?.image
+                      chats.find((chat) => chat.publicId === Recipant)?.image
                     }
-                    alt={
-                      chats.find((chat) => chat.publicId === selectedChat)?.name
-                    }
+                    alt={chats.find((chat) => chat.publicId === Recipant)?.name}
                   />
                   <AvatarFallback>
-                    {
-                      chats.find((chat) => chat.publicId === selectedChat)
-                        ?.name[0]
-                    }
+                    {chats.find((chat) => chat.publicId === Recipant)?.name[0]}
                   </AvatarFallback>
                 </Avatar>
                 <h2 className="font-semibold">
-                  {chats.find((chat) => chat.publicId === selectedChat)?.name}
+                  {chats.find((chat) => chat.publicId === Recipant)?.name}
                 </h2>
               </div>
               <ScrollArea className="flex-grow p-4">
-                {messages.map((message, id) => (
+                {messages.map((data, id) => (
                   <div key={id} className="mb-4 group">
                     <div className="flex items-start gap-4 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded p-2 -mx-2">
                       <Avatar className="h-10 w-10 mt-0.5">
                         <AvatarImage
                           src={
-                            message.includes("&*&*$$u$$*&*& ")
-                              ? session?.user?.image
-                              : chats.find(
-                                  (chat) => chat.publicId === selectedChat
-                                )?.image
+                            data.senderId === ""
+                              ? session?.user?.image || localStorage.getItem("avatar")!
+                              : chats.find((chat) => chat.publicId === Recipant)
+                                  ?.image
                           }
                         />
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className=" font-thin">
-                            {message.replace("&*&*$$u$$*&*&", "")}
+                            {data.message}
                           </span>
                         </div>
                       </div>
@@ -242,22 +244,26 @@ export default function Inbox() {
                     setInputMessage(e.target.value);
                     console.log(inputMessage);
                   }}
-                  placeholder="Message" 
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter")
+                        sendMessage()
+                    }}
+                  placeholder="Message"
                   className="bg-gray-100 dark:bg-[#383A40] border-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
                 <div className="w-full flex justify-end">
-                <Button
-                  onClick={sendMessage}
-                  disabled={isLoading}
-                  variant={"ghost"}
-                  className="absolute bottom-8"
-                >
-                  {isLoading ? (
-                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Icons.Send />
-                  )}
-                </Button>
+                  <Button
+                    onClick={sendMessage}
+                    disabled={isLoading}
+                    variant={"ghost"}
+                    className="absolute bottom-8"
+                  >
+                    {isLoading ? (
+                      <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Icons.Send />
+                    )}
+                  </Button>
                 </div>
               </div>
             </>
