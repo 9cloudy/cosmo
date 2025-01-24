@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { signIn } from "next-auth/react";
+import axios from "axios";
 
 import {
   Dialog,
@@ -21,7 +22,7 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   hide?: boolean;
 }
 
-export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
+export function LoginForm({ hide, className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
@@ -34,11 +35,13 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
 
   async function onSubmit() {
     setIsLoading(true);
-    window.location.hash = ""
+    window.location.hash = "";
     await signIn("credentials", {
       email,
       password,
     });
+    const image = (await axios.post("/api/user/login", { email:email })).data;
+    localStorage.setItem("avatar", image);
     setIsOpen(false);
     setIsLoading(false);
   }
@@ -47,14 +50,14 @@ export function LoginForm({hide, className, ...props }: UserAuthFormProps) {
     setIsLoading(true);
     await signIn("google");
     setIsLoading(false);
-    window.location.hash = ""
+    window.location.hash = "";
   }
 
   async function githubSignIn() {
     setIsLoading(true);
     await signIn("github");
     setIsLoading(false);
-    window.location.hash = ""
+    window.location.hash = "";
   }
 
   return (
