@@ -43,28 +43,30 @@ wss.on("connection", (ws, req) => {
     console.log("Client connected", token);
     if (!token) return null;
     clients.set(token?.user.id, ws)
-    
+
     ws.on("message", (data, isBinary) => {
         try {
             const { clientId, message }: payload = JSON.parse(data.toString());
-      
+
             const recipientSocket = clients.get(clientId);
             if (!recipientSocket) {
-              console.error(`Recipient ${clientId} not connected`);
-              ws.send(JSON.stringify({ error: 'Recipient not connected' }));
-              return;
+                console.error(`Recipient ${clientId} not connected`);
+                ws.send(JSON.stringify({ error: 'Recipient not connected' }));
+                return;
             }
-      
+
             recipientSocket.send(
-              JSON.stringify({
-                senderId: token.user.id,
-                message,
-              })
+                JSON.stringify({
+                    senderId: token.user.id,
+                    message,
+                    recipientId: "",
+                    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                })
             );
-          } catch (err) {
+        } catch (err) {
             console.error('Error processing message:', err);
             ws.send(JSON.stringify({ error: 'Invalid message format' }));
-          }
+        }
     });
 
     ws.on("error", (err) => {
