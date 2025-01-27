@@ -22,11 +22,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./sheet";
+import { session } from "@repo/ui/lib/types";
 
 export function Navbar() {
   const { toast } = useToast();
-  const session = useSession();
-  const image = localStorage.getItem("avatar")! || session.data?.user?.image!;
+  const { data: session, status } = useSession() as any as session;
+  const image = localStorage.getItem("avatar")! || session?.user?.image!;
   async function loadChats() {
     const res = await axios.get("/api/chats/");
     if (res.data.msg) {
@@ -34,7 +35,6 @@ export function Navbar() {
         title: res.data.msg,
       });
     }
-    console.log(res.data);
     window.location.href = `/inbox#${JSON.stringify(res.data)}`;
   }
   return (
@@ -44,7 +44,6 @@ export function Navbar() {
           <a href="/" className="text-3xl font-sans font-bold text-white">
             cosmo
           </a>
-
           <nav className="flex items-center space-x-8">
             <div className="hidden md:flex items-center space-x-8">
               <a
@@ -82,7 +81,7 @@ export function Navbar() {
                     className="relative h-8 w-8 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={image} alt="User" />
+                      <AvatarImage src={image} alt="User"/>
                       <AvatarFallback>U</AvatarFallback>
                     </Avatar>
                   </Button>

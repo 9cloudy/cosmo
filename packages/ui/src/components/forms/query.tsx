@@ -23,6 +23,7 @@ type User = {
 export default function QueryForm() {
   const [searchResults, setSearchResults] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isAdded, setisAdded] = useState(false);
   const { toast } = useToast();
   const searchUsers = async (id?: string) => {
     if (id === "") {
@@ -44,8 +45,9 @@ export default function QueryForm() {
       toast({
         title: "request sent",
       });
+      setisAdded(true);
     } catch (err) {
-      console.log("not added");
+      console.log("not isAdded");
     }
     setLoading(false);
   };
@@ -138,8 +140,9 @@ export default function QueryForm() {
                           onClick={(e) => {
                             setLoading(true);
                             handleAddFriend(user.publicId);
+                            
                           }}
-                          disabled={loading}
+                          disabled={loading || isAdded}
                           variant="outline"
                           size="sm"
                           className="md:size-default bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
@@ -148,11 +151,19 @@ export default function QueryForm() {
                             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                           ) : (
                             <>
+                            {!isAdded ? (
+                              <>
                               <UserPlus className="h-4 w-4 mr-2" />
                               <span className="hidden md:inline">
                                 Add Friend
                               </span>
                               <span className="md:hidden">Add</span>
+                            </>
+                            ): (
+                              <span className="hidden md:inline">
+                                sent
+                              </span>
+                            )}
                             </>
                           )}
                         </Button>

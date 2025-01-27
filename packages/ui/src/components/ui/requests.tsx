@@ -95,6 +95,7 @@ export default function Requests({ title,className }: { title: string ,className
                             onClick={() => {
                               setLoading(true);
                               respond(user.publicId, true);
+                              window.location.reload()
                             }}
                             disabled={loading}
                             variant="outline"
@@ -115,6 +116,8 @@ export default function Requests({ title,className }: { title: string ,className
                             onClick={() => {
                               setLoading(true);
                               respond(user.publicId, false);
+                              window.location.reload()
+                              toast({title:"friend added :D"})
                             }}
                             disabled={loading}
                             variant="outline"
