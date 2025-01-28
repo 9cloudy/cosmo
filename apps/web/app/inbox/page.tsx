@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { token } from "~/types";
 import ChatArea from "@repo/ui/components/chatarea";
 import ChatList from "@repo/ui/components/chatlist";
+import Loading from "../loading";
 
 export default function Inbox() {
   const [recipient, setRecipient] = useState<string | null>(null);
@@ -22,39 +23,38 @@ export default function Inbox() {
   >([]);
   const [inputMessage, setInputMessage] = useState("");
   const { data: session, status } = useSession() as any as token;
+ useEffect(()=>{
+  const ws = new WebSocket(
+    `wss://cosmos-ws.onrender.com/?authorization=Bearer*${JSON.stringify(session)}*?isAuthenticated=*${status}`
+  );
 
-  useEffect(() => {
-    const ws = new WebSocket(
-      `ws://localhost:8080?authorization=Bearer*${JSON.stringify(session)}*?isAuthenticated=*${status}`
-    );
+  ws.onopen = () => {
+    console.log("WebSocket connected");
+    setIsConnected(true);
+  };
 
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-      setIsConnected(true);
-    };
+  ws.onmessage = (event) => {
+    console.log("Message from server:", event.data);
+    setMessages((prev) => [...prev, JSON.parse(event.data)]);
+  };
 
-    ws.onmessage = (event) => {
-      console.log("Message from server:", event.data);
-      setMessages((prev) => [...prev, JSON.parse(event.data)]);
-    };
+  ws.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
+  ws.onclose = () => {
+    console.log("WebSocket closed");
+    setIsConnected(false);
+  };
 
-    ws.onclose = () => {
-      console.log("WebSocket closed");
-      setIsConnected(false);
-    };
-
-    socket.current = ws;
-
-    return () => {
-      if (socket.current) {
-        socket.current.close();
-      }
-    };
-  }, [session]);
+  socket.current = ws;
+  return () => {
+    if (socket.current) {
+      socket.current.close();
+    }
+  };
+ },[session,status])
+  
 
   const sendMessage = () => {
     if (socket.current && isConnected && inputMessage) {
@@ -85,24 +85,31 @@ export default function Inbox() {
   );
   return (
     <>
-      <div className="flex h-[calc(100vh-4rem)] bg-white dark:bg-[#313338] text-gray-900 dark:text-gray-100">
-        <SidebarNav />
-        <ChatList
-          chats={chats}
-          recipient={recipient}
-          setRecipient={setRecipient}
-        />
-        <ChatArea
-          recipient={recipient}
-          chats={chats}
-          messages={filteredMessages}
-          inputMessage={inputMessage}
-          setInputMessage={setInputMessage}
-          sendMessage={sendMessage}
-          session={session}
-          setRecipient={setRecipient}
-        />
+     {status === "loading"?(
+      <div>
+        <Loading text="loading your chats ..."></Loading>
       </div>
+     ):(
+      <div className="flex h-[calc(100vh-4rem)] bg-white dark:bg-[#313338] text-gray-900 dark:text-gray-100">
+      <SidebarNav />
+      <ChatList
+        chats={chats}
+        recipient={recipient}
+        setRecipient={setRecipient}
+      />
+      <ChatArea
+        recipient={recipient}
+        chats={chats}
+        messages={filteredMessages}
+        inputMessage={inputMessage}
+        setInputMessage={setInputMessage}
+        sendMessage={sendMessage}
+        session={session}
+        setRecipient={setRecipient}
+      />
+    </div>
+     )
+    }
     </>
   );
 }
