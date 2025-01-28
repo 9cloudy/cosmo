@@ -4,12 +4,14 @@ import { Input } from "./input";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { useState } from "react";
 
 export default function ChatList({
       chats,
       recipient,
       setRecipient,
     }: { chats: Chat[]; recipient: string | null; setRecipient: (id: string | null) => void }) {
+        const [connected,setConnect] = useState(false);
       return (
         <div
           className={`w-full max-lg:min-w-[30%] lg:min-w-[20%] md:w-64 bg-gray-50 dark:bg-[#2B2D31] border-r border-gray-200 dark:border-gray-800 flex flex-col ${recipient ? "hidden md:flex" : "flex"}`}
@@ -55,6 +57,7 @@ export default function ChatList({
                   className={`w-full h-[8vh] justify-start px-2 py-2 hover:bg-gray-300 dark:hover:bg-[#323539] ${recipient === chat.publicId ? "bg-gray-200 dark:bg-gray-700" : ""}`}
                   onClick={() => {
                     setRecipient(chat.publicId)
+                    
                   }}
                 >
                   <Avatar className="h-10 w-10 mr-3">
